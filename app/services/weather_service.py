@@ -11,7 +11,7 @@ class WeatherService:
     async def get_current_weather(self, location: str) -> WeatherResponse:
         url = f"{self.settings.weather_api_url}?q={location}&appid={self.settings.weather_api_key}"
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, proxy="http://proxy.mei.co.jp:8080") as response:
+            async with session.get(url) as response:
                 data = await response.json()
         
         if response.status != 200:
