@@ -1,9 +1,21 @@
 from fastapi import FastAPI
 from app.api.v1.weather import router as weather_router
+from app.services.llm_factory import LLMFactory
+from app.config.settings import settings
+from app.services.weather_service import WeatherService
 
 app = FastAPI()
 
-app.include_router(weather_router, prefix="/api/v1")
+# Create LLM Service
+llm_service = LLMFactory.get_llm_service("openai")
+weather_service = WeatherService(settings, llm_service)
+
+app.include_router(weather_router(weather_service), prefix="/api/v1")
+
+# Thêm endpoint healthcheck
+@app.get("/healthcheck")
+def read_healthcheck():
+    return {"status": "ok"}
 
 if __name__ == "__main__":
     import uvicorn

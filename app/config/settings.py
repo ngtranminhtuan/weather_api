@@ -8,7 +8,7 @@ class Settings(BaseModel):
     weather_api_url: str
 
 def load_settings() -> Settings:
-    with open("app/core/settings.yaml", "r") as f:
+    with open("app/config/settings.yaml", "r") as f:
         config: Dict[str, Any] = yaml.safe_load(f)
     return Settings(**config)
 
