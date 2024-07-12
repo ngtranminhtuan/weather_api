@@ -1,0 +1,3 @@
+openai_api_key: "YOUR_API_KEY_HERE"
+weather_api_key: "YOUR_API_KEY_HERE"
+weather_api_url: "http://api.openweathermap.org/data/2.5/weather"

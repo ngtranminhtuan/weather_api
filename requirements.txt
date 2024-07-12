@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+requests
+openai
+pyyaml
+aiohttp
+pytest
+pytest-asyncio
+mypy
