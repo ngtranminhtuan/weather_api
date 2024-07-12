@@ -73,3 +73,23 @@ http://localhost:8089
       {"role": "user", "content": "What's the weather in Tokyo?"}
     ]
   }
+
+
+## Unit Test
+
+```
+(env) ➜  weather_api git:(main) pytest                       
+===================================================================================== test session starts ======================================================================================
+platform linux -- Python 3.10.12, pytest-8.2.2, pluggy-1.5.0
+rootdir: /home/tuan/Downloads/weather_api
+plugins: anyio-4.4.0, asyncio-0.23.7
+asyncio: mode=strict
+collected 7 items                                                                                                                                                                              
+
+tests/test_llm_factory.py ..                                                                                                                                                             [ 28%]
+tests/test_openai_service.py ..                                                                                                                                                          [ 57%]
+tests/test_weather_service.py ...                                                                                                                                                        [100%]
+
+====================================================================================== 7 passed in 0.95s =======================================================================================
+```
+
