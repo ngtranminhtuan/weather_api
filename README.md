@@ -96,6 +96,7 @@ To run Locust for load testing, ensure the Docker containers are up and running.
 http://localhost:8089
 ```
 ![image alt text](<images/locust.png>)
+![image alt text](<images/system.jpeg>)
 
 ## Endpoints
 
