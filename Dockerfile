@@ -4,6 +4,9 @@ FROM python:3.10-slim
 # Đặt biến môi trường
 ENV PYTHONUNBUFFERED=1
 
+# Cài đặt curl
+RUN apt-get update && apt-get install -y curl
+
 # Tạo và đặt thư mục làm việc
 WORKDIR /app
 
@@ -16,6 +19,8 @@ COPY . /app/
 
 # Mở cổng 8000 cho FastAPI
 EXPOSE 8000
+# Mở cổng 8089 cho Locust
+EXPOSE 8089
 
 # Chạy ứng dụng FastAPI
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
