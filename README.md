@@ -68,6 +68,7 @@ This project is a weather API service built with FastAPI and uses Locust for loa
 3. We can run without Docker using vitual environment:
 ```
 python3.10 -m venv env
+source env/bin/activate
 pip install --upgrade pip wheel setuptools
 pip install -r requirements.txt
 uvicorn main:app --reload
