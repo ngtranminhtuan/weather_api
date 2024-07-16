@@ -29,19 +29,25 @@ async def test_get_weather_info(openai_service):
             }
         }
     ]
-    mock_response = AsyncMock()
-    mock_response.choices = [AsyncMock(message=AsyncMock(tool_calls=[AsyncMock(function=AsyncMock(arguments='{"location": "Osaka,jp"}'))]))]
-    
-    with patch.object(openai_service.client.chat.completions, 'create', return_value=mock_response):
+    with patch.object(openai_service.client.chat.completions, 'create', new_callable=AsyncMock) as mock_create:
+        mock_create.return_value = AsyncMock()
+        mock_create.return_value.choices = [AsyncMock()]
+        mock_create.return_value.choices[0].message = AsyncMock()
+        mock_create.return_value.choices[0].message.tool_calls = [AsyncMock()]
+        mock_create.return_value.choices[0].message.tool_calls[0].function = AsyncMock()
+        mock_create.return_value.choices[0].message.tool_calls[0].function.arguments = '{"location": "Osaka,jp"}'
+
         response_data = await openai_service.get_weather_info(messages, tools)
         assert response_data['location'] == "Osaka,jp"
 
 @pytest.mark.asyncio
 async def test_generate_human_readable_response(openai_service):
     weather_data = {"temperature": 20}
-    mock_response = AsyncMock()
-    mock_response.choices = [AsyncMock(message=AsyncMock(content="The weather in Osaka is 20°C"))]
-    
-    with patch.object(openai_service.client.chat.completions, 'create', return_value=mock_response):
+    with patch.object(openai_service.client.chat.completions, 'create', new_callable=AsyncMock) as mock_create:
+        mock_create.return_value = AsyncMock()
+        mock_create.return_value.choices = [AsyncMock()]
+        mock_create.return_value.choices[0].message = AsyncMock()
+        mock_create.return_value.choices[0].message.content = "The weather in Osaka is 20°C"
+
         response = await openai_service.generate_human_readable_response("Osaka", weather_data)
         assert response == "The weather in Osaka is 20°C"

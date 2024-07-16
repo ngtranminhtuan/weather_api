@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.v1.weather import router as weather_router
+from app.api.v1.weather import weather_router
 from app.services.llm_factory import LLMFactory
 from app.config.settings import settings
 from app.services.weather_service import WeatherService

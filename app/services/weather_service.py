@@ -1,10 +1,11 @@
 import aiohttp
+from app.config.settings import settings
 from app.models.weather import WeatherResponse
 from app.services.openai_service import OpenAIService
-from app.config.settings import Settings
+from typing import List
 
 class WeatherService:
-    def __init__(self, settings: Settings, llm_service: OpenAIService):
+    def __init__(self, settings, llm_service: OpenAIService):
         self.settings = settings
         self.llm_service = llm_service
 
@@ -13,7 +14,7 @@ class WeatherService:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 data = await response.json()
-        
+
         if response.status != 200:
             raise ValueError(data.get("message", "Failed to get weather data"))
 
@@ -21,8 +22,29 @@ class WeatherService:
         celsius_temp = kelvin_temp - 273.15
         return WeatherResponse(location=location, temperature=round(celsius_temp, 2))
 
-    async def get_weather_info(self, messages, tools):
-        return await self.llm_service.get_weather_info(messages, tools)
-
-    async def generate_human_readable_response(self, location, weather_data):
-        return await self.llm_service.generate_human_readable_response(location, weather_data)
+    async def chat_weather(self, messages: List[dict]) -> str:
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "get_current_weather",
+                    "description": "Get the current weather in a given location",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "location": {
+                                "type": "string",
+                                "description": "The city and country, e.g. Osaka,jp",
+                            },
+                        },
+                        "required": ["location"],
+                    }
+                }
+            }
+        ]
+        
+        response_data = await self.llm_service.get_weather_info(messages, tools)
+        location = response_data['location']
+        weather_data = await self.get_current_weather(location)
+        human_readable_response = await self.llm_service.generate_human_readable_response(location, weather_data.dict())
+        return human_readable_response
