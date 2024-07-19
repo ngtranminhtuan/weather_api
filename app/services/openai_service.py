@@ -23,7 +23,6 @@ class OpenAIService:
             return data_json
         else:
             # If finish_reason is not 'tool_calls', return the assistant's message
-            print(response.choices[0].message)
             assistant_message = response.choices[0].message.content
             raise HTTPException(status_code=400, detail={"error": "No tool calls detected.", "message": assistant_message})
 
