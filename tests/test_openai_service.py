@@ -1,10 +1,11 @@
 import pytest
 from unittest.mock import patch, AsyncMock
+from fastapi import HTTPException
 from app.services.openai_service import OpenAIService
 from app.config.settings import Settings
 
 @pytest.mark.asyncio
-async def test_get_weather_info():
+async def test_get_weather_info_success():
     # Mock settings
     settings = Settings(openai_api_key='fake_openai_key', weather_api_key='fake_weather_key', weather_api_url='https://fakeurl.com')
     
@@ -14,6 +15,7 @@ async def test_get_weather_info():
     # Mock response from OpenAI API
     mock_response = AsyncMock()
     mock_response.choices = [AsyncMock()]
+    mock_response.choices[0].finish_reason = 'tool_calls'
     mock_response.choices[0].message = AsyncMock()
     mock_response.choices[0].message.tool_calls = [AsyncMock()]
     mock_response.choices[0].message.tool_calls[0].function = AsyncMock()
@@ -38,6 +40,34 @@ async def test_get_weather_info():
             tool_choice="auto"
         )
 
+@pytest.mark.asyncio
+async def test_get_weather_info_failure():
+    # Mock settings
+    settings = Settings(openai_api_key='fake_openai_key', weather_api_key='fake_weather_key', weather_api_url='https://fakeurl.com')
+    
+    # Initialize the OpenAIService with mock settings
+    service = OpenAIService(settings)
+
+    # Mock response from OpenAI API for failure
+    mock_response = AsyncMock()
+    mock_response.choices = [AsyncMock()]
+    mock_response.choices[0].finish_reason = 'stop'
+    mock_response.choices[0].message = AsyncMock()
+    mock_response.choices[0].message.content = "I'm an AI language model designed to assist with answering questions, providing information, and helping with various tasks through conversation. How can I help you today?"
+
+    # Patch the OpenAI client
+    with patch.object(service.client.chat.completions, 'create', return_value=mock_response):
+        messages = [{'role': 'user', 'content': 'Tell me about AI models.'}]
+        tools = [{'type': 'function', 'function': {'name': 'get_current_weather', 'parameters': {}}}]
+        
+        with pytest.raises(HTTPException) as exc_info:
+            await service.get_weather_info(messages, tools)
+        
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == {
+            "error": "No tool calls detected.",
+            "message": "I'm an AI language model designed to assist with answering questions, providing information, and helping with various tasks through conversation. How can I help you today?"
+        }
 
 @pytest.mark.asyncio
 async def test_generate_human_readable_response():

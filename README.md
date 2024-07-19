@@ -148,11 +148,12 @@ platform darwin -- Python 3.10.14, pytest-8.2.2, pluggy-1.5.0
 rootdir: /Users/tuan/Downloads/weather_api
 plugins: asyncio-0.23.7, anyio-4.4.0
 asyncio: mode=strict
-collected 6 items
+collected 11 items
 
-tests/test_llm_factory.py ..                                                                                        [ 33%]
-tests/test_openai_service.py ..                                                                                     [ 66%]
+tests/test_llm_factory.py ..                                                                                        [ 18%]
+tests/test_openai_service.py ...                                                                                    [ 45%]
+tests/test_weather.py ....                                                                                          [ 81%]
 tests/test_weather_service.py ..                                                                                    [100%]
 
-==================================================== 6 passed in 0.24s ====================================================
+=================================================== 11 passed in 0.56s ====================================================
 ```
