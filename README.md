@@ -125,6 +125,8 @@ http://localhost:8089
 - **Query Parameters:**
   - `location` (string): The city and country (e.g., `Osaka,jp`)
 
+====================================================
+
 ![image alt text](<images/chat_weather.png>)
 ### Chat Weather
 
