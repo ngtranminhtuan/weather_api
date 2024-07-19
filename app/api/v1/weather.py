@@ -23,7 +23,7 @@ def weather_router(weather_service: WeatherService):
     @router.post("/chat_weather")
     async def chat_weather(request: ChatWeatherRequest):
         try:
-            messages = [message.dict() for message in request.messages]
+            messages = [message.model_dump() for message in request.messages]
             response = await weather_service.chat_weather(messages)
             return response
         except ValueError as e:

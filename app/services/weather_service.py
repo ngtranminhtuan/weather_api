@@ -46,5 +46,5 @@ class WeatherService:
         response_data = await self.llm_service.get_weather_info(messages, tools)
         location = response_data['location']
         weather_data = await self.get_current_weather(location)
-        human_readable_response = await self.llm_service.generate_human_readable_response(location, weather_data.dict())
+        human_readable_response = await self.llm_service.generate_human_readable_response(location, weather_data.model_dump())
         return human_readable_response
