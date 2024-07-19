@@ -80,6 +80,22 @@ http://127.0.0.1:8000/docs
 locust -f locustfile.py
 ```
 
+```
+logs
+(env) ➜  weather_api git:(main) ✗ uvicorn main:app --reload
+
+INFO:     Will watch for changes in these directories: ['/Users/tuan/Downloads/weather_api']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [93089] using WatchFiles
+INFO:     Started server process [93108]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:51359 - "GET /docs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51359 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51364 - "GET /api/v1/weather?location=Osaka HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51375 - "POST /api/v1/chat_weather HTTP/1.1" 200 OK
+```
+
 ## Running the Project
 
 After running `docker-compose up --build`, the FastAPI server should be up and running. You can access it at:
@@ -124,17 +140,17 @@ http://localhost:8089
 
 ## Pytest
 ```
-(env) ➜  weather_api git:(218ac96) pytest 
-===================================================================================== test session starts ======================================================================================
-platform linux -- Python 3.10.12, pytest-8.2.2, pluggy-1.5.0
-rootdir: /home/tuan/Downloads/weather_api
-plugins: anyio-4.4.0, asyncio-0.23.7
+(env) ➜  weather_api git:(main) ✗ pytest
+=================================================== test session starts ===================================================
+platform darwin -- Python 3.10.14, pytest-8.2.2, pluggy-1.5.0
+rootdir: /Users/tuan/Downloads/weather_api
+plugins: asyncio-0.23.7, anyio-4.4.0
 asyncio: mode=strict
-collected 7 items                                                                                                                                                                              
+collected 6 items
 
-tests/test_llm_factory.py ..                                                                                                                                                             [ 28%]
-tests/test_openai_service.py ..                                                                                                                                                          [ 57%]
-tests/test_weather_service.py ...                                                                                                                                                        [100%]
+tests/test_llm_factory.py ..                                                                                        [ 33%]
+tests/test_openai_service.py ..                                                                                     [ 66%]
+tests/test_weather_service.py ..                                                                                    [100%]
 
-====================================================================================== 7 passed in 0.66s =======================================================================================
+==================================================== 6 passed in 0.24s ====================================================
 ```
