@@ -1,53 +1,72 @@
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch, AsyncMock
 from app.services.openai_service import OpenAIService
-from app.config.settings import settings
-
-@pytest.fixture
-def openai_service():
-    return OpenAIService(settings)
+from app.config.settings import Settings
 
 @pytest.mark.asyncio
-async def test_get_weather_info(openai_service):
-    messages = [{"role": "user", "content": "What's the weather in Osaka?"}]
-    tools = [
-        {
-            "type": "function",
-            "function": {
-                "name": "get_current_weather",
-                "description": "Get the current weather in a given location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "The city and country, e.g. Osaka,jp",
-                        },
-                    },
-                    "required": ["location"],
-                }
-            }
-        }
-    ]
-    with patch.object(openai_service.client.chat.completions, 'create', new_callable=AsyncMock) as mock_create:
-        mock_create.return_value = AsyncMock()
-        mock_create.return_value.choices = [AsyncMock()]
-        mock_create.return_value.choices[0].message = AsyncMock()
-        mock_create.return_value.choices[0].message.tool_calls = [AsyncMock()]
-        mock_create.return_value.choices[0].message.tool_calls[0].function = AsyncMock()
-        mock_create.return_value.choices[0].message.tool_calls[0].function.arguments = '{"location": "Osaka,jp"}'
+async def test_get_weather_info():
+    # Mock settings
+    settings = Settings(openai_api_key='fake_openai_key', weather_api_key='fake_weather_key', weather_api_url='https://fakeurl.com')
+    
+    # Initialize the OpenAIService with mock settings
+    service = OpenAIService(settings)
 
-        response_data = await openai_service.get_weather_info(messages, tools)
-        assert response_data['location'] == "Osaka,jp"
+    # Mock response from OpenAI API
+    mock_response = AsyncMock()
+    mock_response.choices = [AsyncMock()]
+    mock_response.choices[0].message = AsyncMock()
+    mock_response.choices[0].message.tool_calls = [AsyncMock()]
+    mock_response.choices[0].message.tool_calls[0].function = AsyncMock()
+    mock_response.choices[0].message.tool_calls[0].function.arguments = '{"location": "Tokyo", "temperature": 25, "description": "sunny"}'
+    
+    # Patch the OpenAI client
+    with patch.object(service.client.chat.completions, 'create', return_value=mock_response):
+        messages = [{'role': 'user', 'content': 'What is the weather in Tokyo today?'}]
+        tools = [{'type': 'function', 'function': {'name': 'get_current_weather', 'parameters': {}}}]
+        
+        result = await service.get_weather_info(messages, tools)
+
+        assert result['location'] == 'Tokyo'
+        assert result['temperature'] == 25
+        assert result['description'] == 'sunny'
+
+        # Verify that the OpenAI API was called with the expected arguments
+        service.client.chat.completions.create.assert_called_once_with(
+            model="gpt-4o",
+            messages=messages,
+            tools=tools,
+            tool_choice="auto"
+        )
+
 
 @pytest.mark.asyncio
-async def test_generate_human_readable_response(openai_service):
-    weather_data = {"temperature": 20}
-    with patch.object(openai_service.client.chat.completions, 'create', new_callable=AsyncMock) as mock_create:
-        mock_create.return_value = AsyncMock()
-        mock_create.return_value.choices = [AsyncMock()]
-        mock_create.return_value.choices[0].message = AsyncMock()
-        mock_create.return_value.choices[0].message.content = "The weather in Osaka is 20°C"
+async def test_generate_human_readable_response():
+    # Mock settings
+    settings = Settings(openai_api_key='fake_openai_key', weather_api_key='fake_weather_key', weather_api_url='https://fakeurl.com')
+    
+    # Initialize the OpenAIService with mock settings
+    service = OpenAIService(settings)
 
-        response = await openai_service.generate_human_readable_response("Osaka", weather_data)
-        assert response == "The weather in Osaka is 20°C"
+    # Mock response from OpenAI API
+    mock_response = AsyncMock()
+    mock_response.choices = [AsyncMock()]
+    mock_response.choices[0].message = AsyncMock()
+    mock_response.choices[0].message.content = "It is sunny in Tokyo with a temperature of 25°C."
+
+    # Patch the OpenAI client
+    with patch.object(service.client.chat.completions, 'create', return_value=mock_response):
+        location = 'Tokyo'
+        weather_data = {'location': 'Tokyo', 'temperature': 25, 'description': 'sunny'}
+        
+        result = await service.generate_human_readable_response(location, weather_data)
+
+        assert result == "It is sunny in Tokyo with a temperature of 25°C."
+
+        # Verify that the OpenAI API was called with the expected arguments
+        service.client.chat.completions.create.assert_called_once_with(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant. Answer this weather information in celsius."},
+                {"role": "user", "content": f"Here is the weather in {location}: {weather_data}"},
+            ]
+        )
