@@ -32,7 +32,7 @@ class OpenAIService:
             {"role": "system", "content": "You are a helpful assistant. Answer this weather information in celsius."},
             {"role": "user", "content": f"Here is the weather in {location}: {weather_data}"},
         ]
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
         )
