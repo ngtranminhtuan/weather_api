@@ -1,4 +1,4 @@
-from openai import OpenAI
+from openai import OpenAI, AsyncOpenAI
 import json
 from typing import List, Dict, Any
 from app.config.settings import Settings
@@ -6,10 +6,10 @@ from fastapi import HTTPException
 
 class OpenAIService:
     def __init__(self, settings: Settings):
-        self.client = OpenAI(api_key=settings.openai_api_key)
+        self.client = AsyncOpenAI(api_key=settings.openai_api_key)
 
     async def get_weather_info(self, messages: List[Dict[str, Any]], tools: List[Dict[str, Any]]) -> Dict[str, Any]:
-        response = self.client.chat.completions.create(
+        response = await self.client.chat.completions.create(
             model="gpt-4o",
             messages=messages,
             tools=tools,
