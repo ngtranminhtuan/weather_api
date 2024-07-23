@@ -142,19 +142,20 @@ http://localhost:8089
 
 ## Pytest
 ```
-(env) ➜  weather_api git:(main) ✗ pytest
-=================================================== test session starts ===================================================
-platform darwin -- Python 3.10.14, pytest-8.2.2, pluggy-1.5.0
-rootdir: /Users/tuan/Downloads/weather_api
-plugins: asyncio-0.23.7, anyio-4.4.0
+weather_api git:(main) ✗ pytest                              
+
+====================================================================================== test session starts =======================================================================================
+platform linux -- Python 3.10.12, pytest-8.2.2, pluggy-1.5.0
+rootdir: /home/tuan/Downloads/weather_api
+plugins: anyio-4.4.0, asyncio-0.23.7
 asyncio: mode=strict
-collected 11 items
+collected 14 items                                                                                                                                                                               
 
-tests/test_llm_factory.py ..                                                                                        [ 18%]
-tests/test_openai_service.py ...                                                                                    [ 45%]
-tests/test_weather.py ....                                                                                          [ 81%]
-tests/test_weather_service.py ..                                                                                    [100%]
+tests/test_api_weather.py ....                                                                                                                                                             [ 28%]
+tests/test_llm_factory.py ..                                                                                                                                                               [ 42%]
+tests/test_openai_service.py ...                                                                                                                                                           [ 64%]
+tests/test_weather_service.py .....                                                                                                                                                        [100%]
 
-=================================================== 11 passed in 0.56s ====================================================
+======================================================================================= 14 passed in 5.79s =======================================================================================
 ```
 

@@ -11,16 +11,24 @@ class WeatherService:
 
     async def get_current_weather(self, location: str) -> WeatherResponse:
         url = f"{self.settings.weather_api_url}?q={location}&appid={self.settings.weather_api_key}"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                data = await response.json()
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    data = await response.json()
 
-        if response.status != 200:
-            raise ValueError(data.get("message", "Failed to get weather data"))
+            if response.status != 200:
+                raise ValueError(data.get("message", "Failed to get weather data"))
 
-        kelvin_temp = data['main']['temp']
-        celsius_temp = kelvin_temp - 273.15
-        return WeatherResponse(location=location, temperature=round(celsius_temp, 2))
+            kelvin_temp = data['main']['temp']
+            celsius_temp = kelvin_temp - 273.15
+            return WeatherResponse(location=location, temperature=round(celsius_temp, 2))
+        
+        except aiohttp.ClientError as e:
+            raise ValueError(f"HTTP Client error: {str(e)}")
+        except ValueError as e:
+            raise ValueError(f"Weather data error: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Unexpected error: {str(e)}")
 
     async def chat_weather(self, messages: List[dict]) -> str:
         tools = [
@@ -42,9 +50,15 @@ class WeatherService:
                 }
             }
         ]
+
+        try:
+            response_data = await self.llm_service.get_weather_info(messages, tools)
+            location = response_data['location']
+            weather_data = await self.get_current_weather(location)
+            human_readable_response = await self.llm_service.generate_human_readable_response(location, weather_data.model_dump())
+            return human_readable_response
         
-        response_data = await self.llm_service.get_weather_info(messages, tools)
-        location = response_data['location']
-        weather_data = await self.get_current_weather(location)
-        human_readable_response = await self.llm_service.generate_human_readable_response(location, weather_data.model_dump())
-        return human_readable_response
+        except ValueError as e:
+            raise ValueError(f"LLM or weather service error: {str(e)}")
+        except Exception as e:
+            raise ValueError(f"Unexpected error: {str(e)}")
